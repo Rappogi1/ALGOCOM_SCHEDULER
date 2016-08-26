@@ -88,31 +88,41 @@
   <div class="row">
     <div class="well">
       <h4>Add new event</h4>
-      <form>
+      <form action="php/suggestTime.php"  method="post">
         <div class="form-group row">
           <label for="inputEmail3" class="col-sm-1 col-form-label">Name:</label>
           <div class="col-sm-5">
-            <input type="text" class="form-control" id="inputEmail3" maxlength="100" placeholder="name">
+            <input type="text" class="form-control" id="inputEmail3" maxlength="100" name="eventName" placeholder="name" required>
           </div>
           <label for="inputPassword3" class="col-sm-1 col-form-label">Location: </label>
           <div class="col-sm-5">
-            <input type="text" class="form-control" id="inputPassword3" maxlength="100" placeholder="location">
+            <input type="text" class="form-control" id="inputPassword3" maxlength="100" placeholder="location" name="location" required>
           </div>
         </div>
         <div class="form-group row">
-          <label for="inputEmail3" class="col-sm-1 col-form-label">Time (mins):</label>
+          <label for="inputEmail3" class="col-sm-1 col-form-label">Event Duration (mins):</label>
           <div class="col-sm-5">
-            <input type="number" class="form-control" id="inputEmail3" min="10" step="1" value="10">
-          </div>
-          <label for="inputEmail3" class="col-sm-1 col-form-label">Deadline:</label>
-          <div class="col-xs-5">
-            <input class="form-control" type="datetime-local" id="example-datetime-local-input">
+            <input type="number" class="form-control" id="inputEmail3" min="15" step="15" value="15" name="eventDuration" required>
           </div>
         </div>
         <div class="form-group row">
-          <label for="inputPassword3" class="col-sm-1 col-form-label">Description:</label>
-          <div class="col-sm-11">
-            <textarea class="form-control" id="inputPassword3" row="5" maxlength="140"> </textarea>
+          <label for="inputEmail3" class="col-sm-2 col-form-label">Event Start Date:</label>
+          <div class="col-sm-4">
+            <input type="date" class="form-control" name="startDate" required>
+          </div>
+          <label for="inputEmail3" class="col-sm-2 col-form-label">Event End Date:</label>
+          <div class="col-sm-4">
+            <input type="date" class="form-control" name="endDate" required>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="inputEmail3" class="col-sm-2 col-form-label">Event Start Time:</label>
+          <div class="col-sm-4">
+            <input type="time" class="form-control" name="startDate" required>
+          </div>
+          <label for="inputEmail3" class="col-sm-2 col-form-label">Event End Time:</label>
+          <div class="col-sm-4">
+            <input type="time" class="form-control" name="endDate" required>
           </div>
         </div>
         <fieldset class="form-group row">
@@ -126,17 +136,23 @@
             <tbody>
               <tr>
                 <td><input class="form-check-input glyphicon glyphicon-star-empty" type="checkbox"></td>
-                <td><input class="form-check-input" type="checkbox"></td>
+                <td>
+                  <input type="hidden" value="0" name="reginaPriority">
+                  <input class="form-check-input" type="checkbox" value="1" name="reginaPriority"></td>
                 <td>Regina Claire Balajadia</td>
               </tr>
               <tr>
                 <td><input class="form-check-input glyphicon glyphicon-star-empty" type="checkbox"></td>
-                <td><input class="form-check-input" type="checkbox"></td>
+                <td>
+                  <input type="hidden" value="0" name="rafaelPriority">
+                  <input class="form-check-input" type="checkbox" value="1" name="rafaelPriority"></td>
                 <td>Rafael Lozano</td>
               </tr>
               <tr>
                 <td><input class="form-check-input glyphicon glyphicon-star-empty" type="checkbox"></td>
-                <td><input class="form-check-input" type="checkbox"></td>
+                <td>
+                  <input type="hidden" value="0" name="martinPriority">
+                  <input class="form-check-input" type="checkbox" value="1" name="martinPriority"></td>
                 <td>John Martin Lucas</td>
               </tr>
             </tbody>
@@ -151,6 +167,8 @@
     </div>
   </div>
 </div>
+
+
 <div class="container">
   <div class="row">
       <div class="col-sm-4 col-lg-4 col-md-4">
@@ -169,56 +187,6 @@
                   <h4><strong>Not Available: </strong></h4>
                   <ul>
                     <li class="participants">Rafael Lozano</li>
-                  </ul>
-              </div>
-              <div class="bookEvent">
-                  <a href="#" class="btn btn-primary btn-md btn-block">
-                     Book Event
-                  </a>
-              </div>
-          </div>
-      </div>
-      <div class="col-sm-4 col-lg-4 col-md-4">
-          <div class="thumbnail">
-            <div class="card-header">
-              <h3>Timeslot</h3>
-            </div>
-              <div class="card-body">
-                  <h4><strong>Date:</strong> August 18, 2016</h4>
-                  <h4><strong>Time:</strong> 11:00 - 12:30</h4>
-                  <h4><strong>Available:</strong></h4>
-                  <ul>
-                    <li class="participants">John Martin Lucas</li>
-                  </ul>
-                  <h4><strong>Not Available: </strong></h4>
-                  <ul>
-                    <li class="participants">Regina Claire Balajadia</li>
-                    <li class="participants">Rafael Lozano</li>
-                  </ul>
-              </div>
-              <div class="bookEvent">
-                  <a href="#" class="btn btn-primary btn-md btn-block">
-                     Book Event
-                  </a>
-              </div>
-          </div>
-      </div>
-      <div class="col-sm-4 col-lg-4 col-md-4">
-          <div class="thumbnail">
-            <div class="card-header">
-              <h3>Timeslot</h3>
-            </div>
-              <div class="card-body">
-                  <h4><strong>Date:</strong> August 20, 2016</h4>
-                  <h4><strong>Time:</strong> 12:30 - 14:30</h4>
-                  <h4><strong>Available:</strong></h4>
-                  <ul>
-                    <li class="participants">Regina Claire Balajadia</li>
-                  </ul>
-                  <h4><strong>Not Available: </strong></h4>
-                  <ul>
-                    <li class="participants">Rafael Lozano</li>
-                    <li class="participants">John Martin Lucas</li>
                   </ul>
               </div>
               <div class="bookEvent">
