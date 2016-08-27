@@ -1,5 +1,130 @@
 <?php
 require_once('meeting.php');
+    $gFB;
+    $emailIB;
+    $busyIB;
+    $ilanIB;
+
+    function checkIfBusy($emailmain, $sdt, $edt){
+        global $emailIB;
+        global $busyIB;
+        global $ilanIB;
+        $boolD = 0;
+        $boolT = 0;
+        $count = 0;
+        $yes = 'No';
+        if($emailmain=='rappogi1@gmail.com'){
+        $emailmain='ita91lgk4o9651eaaphjk025kg@group.calendar.google.com';
+    }else if($emailmain=='regina_balajadia@dlsu.edu.ph'){
+        $emailmain='dlsu.edu.ph_9u089b01752o0afi2e5ign0rlg@group.calendar.google.com';
+    }else if($emailmain=='john_martin_lucas@dlsu.edu.ph'){
+        $emailmain='dlsu.edu.ph_h0ghs54ph8kbuc2tiohu1gbg7k@group.calendar.google.com';
+    }
+        foreach($emailIB as $em){
+            //if($em==$emailmain){
+                //echo $em.'<br>';
+                $cnt=0;
+                while($cnt<$ilanIB[$count]){
+                    //$sdt
+                        $datetimesdt = preg_split("/T/", $sdt);           
+                        $datetime1sdt = explode("+", $datetimesdt[1]);
+                        $datetimesdt = $datetimesdt[0].' '.$datetime1sdt[0];
+                        $format = 'Y-m-d H:i:s';
+                        $datesdtsdt = DateTime::createFromFormat($format, $datetimesdt);
+                    //$edt
+                        $datetimeedt = preg_split("/T/", $edt);           
+                        $datetime1edt = explode("+", $datetimeedt[1]);
+                        $datetimeedt = $datetimeedt[0].' '.$datetime1edt[0];
+                        $format = 'Y-m-d H:i:s';
+                        $datesdtedt = DateTime::createFromFormat($format, $datetimeedt);
+                    $boolD = 0;
+                    $boolDo = 0;
+                    $boolCount = 0;
+                    foreach($busyIB[$count] as $bTemp){
+                        //echo $bTemp[$cnt].'<br>';
+                        
+                        $datetime = preg_split("/T/", $bTemp[$cnt]);           
+                        $datetime1 = explode("+", $datetime[1]);
+                        $datetime = $datetime[0].' '.$datetime1[0];
+                        $format = 'Y-m-d H:i:s';
+                        $date = DateTime::createFromFormat($format, $datetime);
+                        //echo $datesdtsdt->format('Y-m-d H:i:s') . "\n";
+                        if($boolCount==0){
+                            if(new DateTime($datesdtsdt->format('Y-m-d H:i:s')) >= new DateTime($date->format('Y-m-d H:i:s'))){
+                                //echo 'IN<br>';
+                                $boolD = 1;
+                            }
+                            
+                            if(new DateTime($datesdtsdt->format('Y-m-d H:i:s')) <= new DateTime($date->format('Y-m-d H:i:s'))){
+                                //echo 'Out<br>';
+                                $boolDo = 1;
+                            }
+                        }else if($boolCount==1){
+                            if(new DateTime($datesdtedt->format('Y-m-d H:i:s')) <= 
+                               new DateTime($date->format('Y-m-d H:i:s'))){
+                                //echo 'IN<br>';
+                            }else{
+                                $boolD = 0;   
+                            }
+                            
+                            if(new DateTime($datesdtedt->format('Y-m-d H:i:s')) >= new DateTime($date->format('Y-m-d H:i:s'))){
+                                //echo 'Out<br>';
+                            }else{
+                                
+                                $boolDo = 0;   
+                            }
+                        }
+                        $boolCount++;
+                        
+                        //echo $date->format('Y-m-d H:i:s').'<br>';
+                    }
+                    if($boolD==1||$boolDo==1){
+                        if($em==$emailmain){
+                        $yes = 'Yes';
+                        }
+                        //echo 'YES<br>';
+                    }
+                    $cnt++;
+                }
+                $count++;
+            //}
+        }
+        return $yes;
+    }
+
+    function initiateBusy($emailmain, $sdt, $edt){
+        $email = [];
+        $busy = [];
+
+        $emailmain2=$emailmain;
+        
+        $count=0;
+        while($count<count($emailmain)){
+            if($emailmain[$count]=='rappogi1@gmail.com'){
+                $emailmain[$count]='ita91lgk4o9651eaaphjk025kg@group.calendar.google.com';
+            }else if($emailmain[$count]=='regina_balajadia@dlsu.edu.ph'){
+                $emailmain[$count]='dlsu.edu.ph_9u089b01752o0afi2e5ign0rlg@group.calendar.google.com';
+            }else if($emailmain[$count]=='john_martin_lucas@dlsu.edu.ph'){
+                $emailmain[$count]='dlsu.edu.ph_h0ghs54ph8kbuc2tiohu1gbg7k@group.calendar.google.com';
+            }
+            //echo $emailmain[$count]."<br>";
+            $count++;   
+        }
+        
+        $gFB = getInitBusy($emailmain,$sdt,$edt);
+        global $emailIB;
+        global $busyIB;
+        global $ilanIB;
+        $emailIB = $gFB[0];
+        $busyIB = $gFB[1];
+        $ilanIB = $gFB[2];
+        
+        
+        
+        //return $gFB;
+    }
+
+
     function getIfBusy($emailmain, $sdt, $edt){
     /*if(isset($_POST['submit'])){
             

@@ -13,6 +13,140 @@ set_include_path(get_include_path() . PATH_SEPARATOR . '/path/to/google-api-php-
     );
 
 
+function getInitBusy($em,$sdt,$edt){
+    $homeDirectory = getenv('HOME');
+  if (empty($homeDirectory)) {
+    $homeDirectory = getenv("HOMEDRIVE") . getenv("HOMEPATH");
+  }
+    $client = new Google_Client();
+  $client->setApplicationName(APPLICATION_NAME);
+  $client->setScopes(SCOPES);
+  $client->setAuthConfigFile(CLIENT_SECRET_PATH);
+  $client->setAccessType('offline');
+
+  // Load previously authorized credentials from a file.
+  $credentialsPath = str_replace('~', realpath($homeDirectory), CREDENTIALS_PATH);
+  if (file_exists($credentialsPath)) {
+    $accessToken = file_get_contents($credentialsPath);
+  } else {
+    // Request authorization from the user.
+    $authUrl = $client->createAuthUrl();
+    printf("Open the following link in your browser:\n%s\n", $authUrl);
+    print 'Enter verification code: ';
+    $authCode = '4/euXj9y4o0gYoA8MO2tkGv9tKbmkF8kLxCFc4omeJHVY';
+
+    // Exchange authorization code for an access token.
+    $accessToken = $client->authenticate($authCode);
+
+    // Store the credentials to disk.
+    if(!file_exists(dirname($credentialsPath))) {
+      mkdir(dirname($credentialsPath), 0700, true);
+    }
+    file_put_contents($credentialsPath, $accessToken);
+    printf("Credentials saved to %s\n", $credentialsPath);
+  }
+  $client->setAccessToken($accessToken);
+
+  // Refresh the token if it's expired.
+  if ($client->isAccessTokenExpired()) {
+    $client->refreshToken($client->getRefreshToken());
+    file_put_contents($credentialsPath, $client->getAccessToken());
+  }
+    $calendarService = new Google_Service_Calendar( $client );
+  $calendarList = $calendarService->calendarList->listCalendarList();
+
+ $calendarArray = [];
+
+  // Put together our calendar array
+  while(true) {
+      foreach ($calendarList->getItems() as $calendarListEntry) {
+          //if($calendarListEntry->id==$em){
+            $calendarArray[] = ['id' => $calendarListEntry->id ];
+          //}
+      }
+      $pageToken = $calendarList->getNextPageToken();
+      if ($pageToken) {
+          $optParams = array('pageToken' => $pageToken);
+          $calendarList = $calendarService->calendarList->listCalendarList($optParams);
+      } else {
+          break;
+      }
+  }
+
+$idArray = [];
+$count = 0;
+    //echo '<br>';
+foreach($calendarList->getItems() as $calendarListEntry){
+    $temp = $calendarListEntry->id;
+    foreach($em as $emTemp){
+        if($temp == $emTemp){
+            $idArray[$count] = $temp;
+            //echo $idArray[$count].'<br>';
+            $count++;
+        }
+    }
+}
+
+    $freebusy = new Google_Service_Calendar_FreeBusyRequest();
+    $freebusy->setTimeMin($sdt);//'2016-08-20T18:00:00+08:00');
+  $freebusy->setTimeMax($edt);//'2016-08-30T18:00:00+08:00');
+  $freebusy->setTimeZone('Asia/Manila');
+  $freebusy->setItems( $calendarArray );
+  $createdReq = $calendarService->freebusy->query($freebusy);
+
+    //var_dump($createdReq);
+
+
+$arr = $createdReq->getCalendars();
+
+$count = 0;
+$cnt = 0;
+$busy = [];
+$start = [];
+$end = [];
+$ilan = [];
+
+$count = 0;
+foreach ($arr as $calendarListEntry){
+    $arr_arr =$calendarListEntry->getBusy();
+    $cnt = 0;
+    foreach ($arr_arr as $calendarListEntry){
+        $start[$cnt] = $calendarListEntry->getStart();
+        $end[$cnt] = $calendarListEntry->getEnd();
+        $cnt++;
+    }
+    if($arr_arr!=null){
+        //echo $count." ".$cnt." ";
+        $busy[$count] = array($start,$end);
+        $ilan[$count] = $cnt;
+        //echo $ilan[$count];
+        //echo '<br>';
+        $count++;
+    }
+}
+//echo $ilan[1];
+
+return array($idArray,$busy, $ilan);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function getFreeBusy($em,$sdt,$edt){
     $homeDirectory = getenv('HOME');
