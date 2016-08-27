@@ -1,5 +1,5 @@
 <?php
-
+require_once('meeting.php');
     function getIfBusy($emailmain, $sdt, $edt){
     /*if(isset($_POST['submit'])){
             
@@ -40,7 +40,7 @@
             $yes;
         
     //if(empty($data_missing)){
-    require('meeting.php');
+    
     $pos = [];
     $cnt;
     $email = [];

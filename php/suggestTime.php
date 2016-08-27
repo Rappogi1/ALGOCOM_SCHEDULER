@@ -1,5 +1,5 @@
 <?php
-  session_start();
+  
 
 
   $eventName = $_POST["eventName"];
@@ -9,6 +9,7 @@
   $startTime = $_POST["startTime"];
   $endTime = $_POST["endTime"];
   $duration = $_POST["eventDuration"];
+  
 
 
   echo $eventName.'<br/>';
@@ -74,6 +75,7 @@
   /*this is rap's function*/
   function score($timeStart, $timeEnd){
     //"2016-08-23T09:30:00+08:00"
+      session_start();
 
     $gmt = "+08:00";
     $dat = date('Y-m-d', strtotime($timeStart));
@@ -86,9 +88,10 @@
     $timeEndGoogle = $datEnd."T".$tmeEnd.$gmt;
 
     $users = $_SESSION['users'];
-
+      
+    $score=0;
     foreach($users as $user){
-      $isBusy = getIfBusy($user->email, $timeStartGoogle, $timeEndGoogle);
+      $isBusy = getIfBusy($users, $timeStartGoogle, $timeEndGoogle);
       if($isBusy == 1){
         $score = $score + 3;
       }

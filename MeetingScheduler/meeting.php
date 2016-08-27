@@ -11,15 +11,22 @@ set_include_path(get_include_path() . PATH_SEPARATOR . '/path/to/google-api-php-
             Google_Service_Calendar::CALENDAR_READONLY)
         )
     );
-function getClient() {
-  $client = new Google_Client();
+
+
+
+function getFreeBusy($em,$sdt,$edt){
+    $homeDirectory = getenv('HOME');
+  if (empty($homeDirectory)) {
+    $homeDirectory = getenv("HOMEDRIVE") . getenv("HOMEPATH");
+  }
+    $client = new Google_Client();
   $client->setApplicationName(APPLICATION_NAME);
   $client->setScopes(SCOPES);
   $client->setAuthConfigFile(CLIENT_SECRET_PATH);
   $client->setAccessType('offline');
 
   // Load previously authorized credentials from a file.
-  $credentialsPath = expandHomeDirectory(CREDENTIALS_PATH);
+  $credentialsPath = str_replace('~', realpath($homeDirectory), CREDENTIALS_PATH);
   if (file_exists($credentialsPath)) {
     $accessToken = file_get_contents($credentialsPath);
   } else {
@@ -27,7 +34,7 @@ function getClient() {
     $authUrl = $client->createAuthUrl();
     printf("Open the following link in your browser:\n%s\n", $authUrl);
     print 'Enter verification code: ';
-    $authCode = '4/UxB2HEbr6TPpp1FGmT82l-P27q8m6IYANQy01YeFsH4';
+    $authCode = '4/euXj9y4o0gYoA8MO2tkGv9tKbmkF8kLxCFc4omeJHVY';
 
     // Exchange authorization code for an access token.
     $accessToken = $client->authenticate($authCode);
@@ -46,24 +53,6 @@ function getClient() {
     $client->refreshToken($client->getRefreshToken());
     file_put_contents($credentialsPath, $client->getAccessToken());
   }
-  return $client;
-}
-
-function expandHomeDirectory($path) {
-  $homeDirectory = getenv('HOME');
-  if (empty($homeDirectory)) {
-    $homeDirectory = getenv("HOMEDRIVE") . getenv("HOMEPATH");
-  }
-  return str_replace('~', realpath($homeDirectory), $path);
-}
-
-
-function getFreeBusy($em,$sdt,$edt){
-
-
-
-
-    $client = getClient();
     $calendarService = new Google_Service_Calendar( $client );
   $calendarList = $calendarService->calendarList->listCalendarList();
 
