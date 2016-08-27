@@ -1,3 +1,28 @@
+
+<?php
+// Require our Event class and datetime utilities
+require dirname(__FILE__) . '/php/userModel.php';
+session_start();
+
+
+// Read and parse our events JSON file into an array of event data arrays.
+$json = file_get_contents(dirname(__FILE__) . '/json/user.json');
+$input_arrays = json_decode($json, true);
+$users = array();
+
+  foreach ($input_arrays as $key1 => $value1) {
+    $user = new User($input_arrays[$key1]["Name"],$input_arrays[$key1]["Email"], true, false);
+    // echo $user->name."<br>";
+    // echo $user->email."<br>";
+
+    array_push($users, $user);
+  }
+
+$_SESSION['users'] = $users;
+  // Send JSON to the client.
+  //echo json_encode($users);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -90,41 +115,42 @@
       <h4>Add new event</h4>
       <form action="php/suggestTime.php"  method="post">
         <div class="form-group row">
-          <label for="inputEmail3" class="col-sm-1 col-form-label">Name:</label>
+          <label class="col-sm-1 col-form-label">Name:</label>
           <div class="col-sm-5">
             <input type="text" class="form-control" id="inputEmail3" maxlength="100" name="eventName" placeholder="name" required>
           </div>
-          <label for="inputPassword3" class="col-sm-1 col-form-label">Location: </label>
+          <label class="col-sm-1 col-form-label">Location: </label>
           <div class="col-sm-5">
             <input type="text" class="form-control" id="inputPassword3" maxlength="100" placeholder="location" name="location" required>
           </div>
         </div>
         <div class="form-group row">
-          <label for="inputEmail3" class="col-sm-1 col-form-label">Event Duration (mins):</label>
+          <label class="col-sm-1 col-form-label">Event Duration (mins):</label>
           <div class="col-sm-5">
             <input type="number" class="form-control" id="inputEmail3" min="15" step="15" value="15" name="eventDuration" required>
           </div>
         </div>
         <div class="form-group row">
-          <label for="inputEmail3" class="col-sm-2 col-form-label">Event Start Date:</label>
+          <label class="col-sm-2 col-form-label">Event Start Date:</label>
           <div class="col-sm-4">
             <input type="date" class="form-control" name="startDate" required>
           </div>
-          <label for="inputEmail3" class="col-sm-2 col-form-label">Event End Date:</label>
+          <label class="col-sm-2 col-form-label">Event End Date:</label>
           <div class="col-sm-4">
             <input type="date" class="form-control" name="endDate" required>
           </div>
         </div>
         <div class="form-group row">
-          <label for="inputEmail3" class="col-sm-2 col-form-label">Event Start Time:</label>
+          <label class="col-sm-2 col-form-label">Event Start Time:</label>
           <div class="col-sm-4">
-            <input type="time" class="form-control" name="startDate" required>
+            <input type="time" class="form-control" name="startTime" required>
           </div>
-          <label for="inputEmail3" class="col-sm-2 col-form-label">Event End Time:</label>
+          <label class="col-sm-2 col-form-label">Event End Time:</label>
           <div class="col-sm-4">
-            <input type="time" class="form-control" name="endDate" required>
+            <input type="time" class="form-control" name="endTime" required>
           </div>
         </div>
+
         <fieldset class="form-group row">
           <legend class="col-form-legend col-sm-12">People</legend>
           <table class="col-form-legend col-sm-offset-1 col-sm-11">
@@ -132,32 +158,23 @@
               <th>Invite</th>
               <th>Priority?</th>
               <th>Name</th>
+              <th>Email</th>
             </thead>
             <tbody>
+              <?php foreach($users as $user){ ?>
               <tr>
                 <td><input class="form-check-input glyphicon glyphicon-star-empty" type="checkbox"></td>
                 <td>
-                  <input type="hidden" value="0" name="reginaPriority">
-                  <input class="form-check-input" type="checkbox" value="1" name="reginaPriority"></td>
-                <td>Regina Claire Balajadia</td>
+                  <input type="hidden" value="0" name="<?php echo $user->name."Priority" ?>">
+                  <input class="form-check-input" type="checkbox" value="1" name="<?php echo $user->name."Priority" ?>"></td>
+                <td><?php echo $user->name?></td>
+                <td><?php echo $user->email?></td>
               </tr>
-              <tr>
-                <td><input class="form-check-input glyphicon glyphicon-star-empty" type="checkbox"></td>
-                <td>
-                  <input type="hidden" value="0" name="rafaelPriority">
-                  <input class="form-check-input" type="checkbox" value="1" name="rafaelPriority"></td>
-                <td>Rafael Lozano</td>
-              </tr>
-              <tr>
-                <td><input class="form-check-input glyphicon glyphicon-star-empty" type="checkbox"></td>
-                <td>
-                  <input type="hidden" value="0" name="martinPriority">
-                  <input class="form-check-input" type="checkbox" value="1" name="martinPriority"></td>
-                <td>John Martin Lucas</td>
-              </tr>
+              <?php }?>
             </tbody>
           </table>
         </fieldset>
+
         <div class="form-group row">
           <div class="offset-sm-2 col-sm-10">
             <button type="submit" class="btn btn-primary">Suggest Event Time</button>
@@ -167,38 +184,6 @@
     </div>
   </div>
 </div>
-
-
-<div class="container">
-  <div class="row">
-      <div class="col-sm-4 col-lg-4 col-md-4">
-          <div class="thumbnail">
-            <div class="card-header best">
-              <h3>Timeslot</h3>
-            </div>
-              <div class="card-body">
-                  <h4><strong>Date:</strong> August 17, 2016</h4>
-                  <h4><strong>Time:</strong> 15:30 - 18:30</h4>
-                  <h4><strong>Available:</strong></h4>
-                  <ul>
-                    <li class="participants">Regina Claire Balajadia</li>
-                    <li class="participants">John Martin Lucas</li>
-                  </ul>
-                  <h4><strong>Not Available: </strong></h4>
-                  <ul>
-                    <li class="participants">Rafael Lozano</li>
-                  </ul>
-              </div>
-              <div class="bookEvent">
-                  <a href="#" class="btn btn-primary btn-md btn-block">
-                     Book Event
-                  </a>
-              </div>
-          </div>
-      </div>
-  </div>
-</div>
-
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src='js/jquery-3.1.0.min.js'></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->

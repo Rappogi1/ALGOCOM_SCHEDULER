@@ -6,7 +6,7 @@ set_include_path(get_include_path() . PATH_SEPARATOR . '/path/to/google-api-php-
     define('CREDENTIALS_PATH', '~/.credentials/calendar-php-quickstart.json');
     define('CLIENT_SECRET_PATH', __DIR__ . '/client_secret.json');
 
-    define('SCOPES', 
+    define('SCOPES',
         implode(' ', array(
             Google_Service_Calendar::CALENDAR_READONLY)
         )
@@ -27,7 +27,7 @@ function getClient() {
     $authUrl = $client->createAuthUrl();
     printf("Open the following link in your browser:\n%s\n", $authUrl);
     print 'Enter verification code: ';
-    $authCode = '4/euXj9y4o0gYoA8MO2tkGv9tKbmkF8kLxCFc4omeJHVY';
+    $authCode = '4/UxB2HEbr6TPpp1FGmT82l-P27q8m6IYANQy01YeFsH4';
 
     // Exchange authorization code for an access token.
     $accessToken = $client->authenticate($authCode);
@@ -59,16 +59,16 @@ function expandHomeDirectory($path) {
 
 
 function getFreeBusy($em,$sdt,$edt){
-    
 
-    
+
+
 
     $client = getClient();
     $calendarService = new Google_Service_Calendar( $client );
   $calendarList = $calendarService->calendarList->listCalendarList();
 
  $calendarArray = [];
-  
+
   // Put together our calendar array
   while(true) {
       foreach ($calendarList->getItems() as $calendarListEntry) {
@@ -143,7 +143,7 @@ foreach ($arr as $calendarListEntry){
         //echo $calendarListEntry->getStart().'<br>';
         //echo $calendarListEntry->getEnd();
     }
-    
+
     //$count++;
 }
 
@@ -175,6 +175,6 @@ return array($pos,$cnt,$email,$start,$end);
     echo printf("%s (%s)\n", $event->getSummary(), $start);
   }
 }*/
-  
+
 
 ?>
