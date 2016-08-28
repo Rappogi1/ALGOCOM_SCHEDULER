@@ -9,7 +9,7 @@ $input_arrays = json_decode($json, true);
 $users = array();
 
   foreach ($input_arrays as $key1 => $value1) {
-    $user = new User($input_arrays[$key1]["Name"],$input_arrays[$key1]["Email"], true, false);
+    $user = new User($input_arrays[$key1]["Name"],$input_arrays[$key1]["Email"], true);
     // echo $user->name."<br>";
     // echo $user->email."<br>";
 

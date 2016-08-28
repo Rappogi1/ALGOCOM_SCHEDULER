@@ -32,13 +32,21 @@ $users = array();
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>Organization Event</title>
 
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
     <style>
     	body, th, td{
     		/*margin: 40px 10px;
     		padding: 0; */
     		font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
     		font-size: 16px;
+
     	}
+      th, td{
+            text-align: center;
+      }
       #loading {
         display: none;
         position: absolute;
@@ -74,10 +82,6 @@ $users = array();
         font-size: 16px;
       }
     </style>
-
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
-    <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -153,20 +157,19 @@ $users = array();
 
         <fieldset class="form-group row">
           <legend class="col-form-legend col-sm-12">People</legend>
-          <table class="col-form-legend col-sm-offset-1 col-sm-11">
+          <table class="table col-form-legend">
             <thead>
-              <th>Invite</th>
-              <th>Priority?</th>
-              <th>Name</th>
-              <th>Email</th>
+              <th class="col-md-2">Invite</th>
+              <th class="col-md-2">Priority?</th>
+              <th class="col-md-4">Name</th>
+              <th class="col-md-4">Email</th>
             </thead>
             <tbody>
+
               <?php foreach($users as $user){ ?>
-              <tr>
-                <td><input class="form-check-input glyphicon glyphicon-star-empty" type="checkbox"></td>
-                <td>
-                  <input type="hidden" value="0" name="<?php echo $user->name."Priority" ?>">
-                  <input class="form-check-input" type="checkbox" value="1" name="<?php echo $user->name."Priority" ?>"></td>
+              <tr class="active">
+                <td><input type="checkbox" name="invited[]" value="<?php echo $user->email?>" onclick="toggleRow('<?php echo $user->email?>')" ></td>
+                <td><input id="row_<?php echo $user->email?>" type="checkbox" name="priority[]>" value="<?php echo $user->email?>"></td>
                 <td><?php echo $user->name?></td>
                 <td><?php echo $user->email?></td>
               </tr>
@@ -184,40 +187,38 @@ $users = array();
     </div>
   </div>
 </div>
-
-<div class="container">
-  <div class="row">
-      <div class="col-sm-4 col-lg-4 col-md-4">
-          <div class="thumbnail">
-            <div class="card-header best">
-              <h3>Timeslot</h3>
-            </div>
-              <div class="card-body">
-                  <h4><strong>Date:</strong> August 17, 2016</h4>
-                  <h4><strong>Time:</strong> 15:30 - 18:30</h4>
-                  <h4><strong>Available:</strong></h4>
-                  <ul>
-                    <li class="participants">Regina Claire Balajadia</li>
-                    <li class="participants">John Martin Lucas</li>
-                  </ul>
-                  <h4><strong>Not Available: </strong></h4>
-                  <ul>
-                    <li class="participants">Rafael Lozano</li>
-                  </ul>
-              </div>
-              <div class="bookEvent">
-                  <a href="#" class="btn btn-primary btn-md btn-block">
-                     Book Event
-                  </a>
-              </div>
-          </div>
-      </div>
-  </div>
-</div>
-
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src='js/jquery-3.1.0.min.js'></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="js/bootstrap.min.js"></script>
+    <script>
+    function toggleRow(rowName) {
+      var checkbox = "invite_"+rowName;
+      var row = "row_"+rowName;
+
+      console.log(rowName);
+      console.log(checkbox);
+      console.log(row);
+
+      var toggle = document.getElementById(row);
+      updateToggle = checkbox.checked ? toggle.disabled=true : toggle.disabled=false;
+    }
+      // function toggleRow($rowName) {
+      //   $checkbox = "invite_"+$rowName;
+      //   $row = "row_"+$rowName;
+      //   console.log($rowName);
+      //   console.log($checkbox);
+      //   console.log($row);
+      //
+      //   if(document.$checkbox.checked)
+      //   {
+      //     document.$row.disabled=false;
+      //   }
+      //   else
+      //   {
+      //     document.$row.disabled=true;
+      //   }
+      // }
+    </script>
   </body>
 </html>

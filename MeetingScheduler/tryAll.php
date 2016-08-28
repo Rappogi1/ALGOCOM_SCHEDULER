@@ -20,6 +20,10 @@ require_once('meeting.php');
     }else if($emailmain=='john_martin_lucas@dlsu.edu.ph'){
         $emailmain='dlsu.edu.ph_h0ghs54ph8kbuc2tiohu1gbg7k@group.calendar.google.com';
     }
+
+    foreach ($ilanIB as $value) {
+      echo "ilabib:".$value."<br>";
+    }
         foreach($emailIB as $em){
             //if($em==$emailmain){
                 //echo $em.'<br>';
@@ -97,7 +101,7 @@ require_once('meeting.php');
         $busy = [];
 
         $emailmain2=$emailmain;
-        
+
         $count=0;
         while($count<count($emailmain)){
             if($emailmain[$count]=='rappogi1@gmail.com'){
