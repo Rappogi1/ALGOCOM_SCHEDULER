@@ -150,7 +150,7 @@
                 echo "4"."<br>";
                 break;
       }
-      if($startDateTime >= $newSolution && $newSolution <= $endDateTime){
+      if(strtotime($startDateTime) >= strtotime($newSolution) && strtotime($newSolution) <= strtotime($endDateTime)){
         echo "valid neighbor";
         return $newSolution;
       }
@@ -253,6 +253,7 @@
       }
       .panel-body{
         padding-left: 10px;
+        font-weight: bold;
       }
       .participants{
         font-size: 16px;
@@ -298,16 +299,20 @@
               ?></strong>
             </div>
               <div class="panel-body">
-                  <h4><strong>Available:</strong></h4>
+                <h4><strong>Participants: <?php echo count($time->available)+count($time->notAvailable);?> </strong></h4>
+                <hr/>
+                  <h4><strong>Available: <?php echo count($time->available);?> </strong></h4>
                   <ul>
                     <?php foreach($time->available as $avail){ ?>
-                      <li class="participants"><?php echo $avail->name ?></li>
+                      <li class="participants <?php if($avail->isPriority == 1){ echo "text-info";}?>"><?php echo $avail->name ?>
+                      </li>
                     <?php } ?>
                   </ul>
-                  <h4><strong>Not Available: </strong></h4>
+                  <h4><strong>Not Available: <?php echo count($time->notAvailable);?>  </strong></h4>
                   <ul>
                     <?php foreach($time->notAvailable as $notAvail){ ?>
-                      <li class="participants"><?php echo $notAvail->name ?></li>
+                      <li class="participants <?php if($avail->isPriority == 1){ echo "text-info";}?> "><?php echo $notAvail->name ?>
+                      </li>
                     <?php } ?>
                   </ul>
               </div>

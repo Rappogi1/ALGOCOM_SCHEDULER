@@ -117,7 +117,7 @@ $users = array();
   <div class="row">
     <div class="well">
       <h4>Add new event</h4>
-      <form action="php/suggestTime.php"  method="post">
+      <form id="eventForm" action="php/suggestTime.php"  method="post">
         <div class="form-group row">
           <label class="col-sm-1 col-form-label">Name:</label>
           <div class="col-sm-5">
@@ -131,27 +131,33 @@ $users = array();
         <div class="form-group row">
           <label class="col-sm-1 col-form-label">Event Duration (mins):</label>
           <div class="col-sm-5">
-            <input type="number" class="form-control" id="inputEmail3" min="15" step="15" value="15" name="eventDuration" required>
+            <input type="number" class="form-control" id="duration" min="15" step="15" value="15" name="eventDuration" onchange="validateTime()" required>
           </div>
         </div>
         <div class="form-group row">
           <label class="col-sm-2 col-form-label">Event Start Date:</label>
-          <div class="col-sm-4">
-            <input type="date" class="form-control" name="startDate" required>
+          <div class="col-sm-4 dateContainer">
+            <div class="input-group input-append date" id="startDatePicker">
+                <input id="startDate" type="date" class="form-control" name="startDate" onchange="validateDate()" required/>
+                <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
           </div>
           <label class="col-sm-2 col-form-label">Event End Date:</label>
-          <div class="col-sm-4">
-            <input type="date" class="form-control" name="endDate" required>
+          <div class="col-sm-4 dateContainer">
+            <div class="input-group input-append date" id="endDatePicker">
+                <input id="endDate" type="date" class="form-control" name="endDate" onchange="validateDate()" required/>
+                <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
           </div>
         </div>
         <div class="form-group row">
           <label class="col-sm-2 col-form-label">Event Start Time:</label>
           <div class="col-sm-4">
-            <input type="time" class="form-control" name="startTime" required>
+            <input id="startTime" type="time" class="form-control" name="startTime" onchange="validateTime()" required>
           </div>
           <label class="col-sm-2 col-form-label">Event End Time:</label>
           <div class="col-sm-4">
-            <input type="time" class="form-control" name="endTime" required>
+            <input id="endTime" type="time" class="form-control" name="endTime" onchange="validateTime()" required>
           </div>
         </div>
 
@@ -191,34 +197,47 @@ $users = array();
     <script src='js/jquery-3.1.0.min.js'></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="js/bootstrap.min.js"></script>
+    <script src='fullcalendar-2.9.1/lib/moment.min.js'></script>
     <script>
     function toggleRow(rowName) {
       var checkbox = "invite_"+rowName;
       var row = "row_"+rowName;
-
-      console.log(rowName);
-      console.log(checkbox);
-      console.log(row);
+      //
+      // console.log(rowName);
+      // console.log(checkbox);
+      // console.log(row);
 
       var toggle = document.getElementById(row);
       updateToggle = checkbox.checked ? toggle.disabled=true : toggle.disabled=false;
     }
-      // function toggleRow($rowName) {
-      //   $checkbox = "invite_"+$rowName;
-      //   $row = "row_"+$rowName;
-      //   console.log($rowName);
-      //   console.log($checkbox);
-      //   console.log($row);
-      //
-      //   if(document.$checkbox.checked)
-      //   {
-      //     document.$row.disabled=false;
-      //   }
-      //   else
-      //   {
-      //     document.$row.disabled=true;
-      //   }
-      // }
+    var m = moment().format("YYYY-MM-DD");
+
+    document.getElementById("startDate").min = m;
+    document.getElementById("endDate").min = m;
+
+    function validateDate() {
+      // console.log("changed!");
+      // var startDate = new Date($('#startDate').val());
+      var minDate = document.getElementById("startDate").value;
+      // console.log(minDate);
+      document.getElementById("endDate").min = minDate;
+    }
+    function addMinutes(time/*"hh:mm"*/, minsToAdd/*"N"*/) {
+      function z(n){
+        return (n<10? '0':'') + n;
+      }
+      var bits = time.split(':');
+      var mins = bits[0]*60 + (+bits[1]) + (+minsToAdd);
+
+      return z(mins%(24*60)/60 | 0) + ':' + z(mins%60);
+    }
+    function validateTime(){
+        var time = document.getElementById("startTime").value;
+        var duration = document.getElementById("duration").value;
+        var endTime = addMinutes(time,duration);
+        document.getElementById("endTime").min = endTime;
+        // console.log(endTime);
+    }
     </script>
   </body>
 </html>
