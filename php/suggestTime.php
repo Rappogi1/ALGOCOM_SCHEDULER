@@ -292,6 +292,7 @@
 <div class="container">
   <div class="row">
       <?php foreach($timeSlots as $time){ ?>
+      <form role="form" action="/../MeetingScheduler/addToGoogle.php"  method="post">
         <div class="col-sm-4 col-lg-4 col-md-4">
           <div class="thumbnail panel panel-default">
             <div class="panel-header">
@@ -323,6 +324,7 @@
               </div>
           </div>
         </div>
+      </form>
       <?php } ?>
   </div>
 </div>

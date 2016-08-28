@@ -6,9 +6,11 @@ set_include_path(get_include_path() . PATH_SEPARATOR . '/path/to/google-api-php-
     define('CREDENTIALS_PATH', '~/.credentials/calendar-php-quickstart.json');
     define('CLIENT_SECRET_PATH', __DIR__ . '/client_secret.json');
 
+    define('AUTH_CODE', __DIR__ . '4/euXj9y4o0gYoA8MO2tkGv9tKbmkF8kLxCFc4omeJHVY');
+
     define('SCOPES',
         implode(' ', array(
-            Google_Service_Calendar::CALENDAR_READONLY)
+            Google_Service_Calendar::CALENDAR)
         )
     );
 
@@ -33,7 +35,7 @@ function getInitBusy($em,$sdt,$edt){
     $authUrl = $client->createAuthUrl();
     printf("Open the following link in your browser:\n%s\n", $authUrl);
     print 'Enter verification code: ';
-    $authCode = '4/euXj9y4o0gYoA8MO2tkGv9tKbmkF8kLxCFc4omeJHVY';
+    $authCode = AUTH_CODE;
 
     // Exchange authorization code for an access token.
     $accessToken = $client->authenticate($authCode);
@@ -126,6 +128,8 @@ foreach ($arr as $calendarListEntry){
         //echo $ilan[$count].'Yes<br>';
         //echo '<br>';
         $count++;
+    }else{
+        $ilan[$count] = 0;
     }
 }
 //echo $ilan[1];
@@ -137,14 +141,127 @@ return array($idArray,$busy, $ilan);
 
 
 
+function addToGoogle($users, $summary, $location, $description, $sdt, $edt){
+    $homeDirectory = getenv('HOME');
+  if (empty($homeDirectory)) {
+    $homeDirectory = getenv("HOMEDRIVE") . getenv("HOMEPATH");
+  }
+    $client = new Google_Client();
+  $client->setApplicationName(APPLICATION_NAME);
+  $client->addScope("https://www.googleapis.com/auth/calendar");
+  $client->setAuthConfigFile(CLIENT_SECRET_PATH);
+  $client->setAccessType('offline');
+
+  // Load previously authorized credentials from a file.
+  $credentialsPath = str_replace('~', realpath($homeDirectory), CREDENTIALS_PATH);
+  if (file_exists($credentialsPath)) {
+    $accessToken = file_get_contents($credentialsPath);
+  } else {
+    // Request authorization from the user.
+    $authUrl = $client->createAuthUrl();
+    printf("Open the following link in your browser:\n%s\n", $authUrl);
+    print 'Enter verification code: ';
+    $authCode = AUTH_CODE;
+
+    // Exchange authorization code for an access token.
+    $accessToken = $client->authenticate($authCode);
+
+    // Store the credentials to disk.
+    if(!file_exists(dirname($credentialsPath))) {
+      mkdir(dirname($credentialsPath), 0700, true);
+    }
+    file_put_contents($credentialsPath, $accessToken);
+    printf("Credentials saved to %s\n", $credentialsPath);
+  }
+  $client->setAccessToken($accessToken);
+
+  // Refresh the token if it's expired.
+  if ($client->isAccessTokenExpired()) {
+    $client->refreshToken($client->getRefreshToken());
+    file_put_contents($credentialsPath, $client->getAccessToken());
+  }
+
+    
+    $service = new Google_Service_Calendar( $client );
+  $event = new Google_Service_Calendar_Event(array(
+  'summary' => $summary,
+  'location' => $location,
+  'description' => $description,
+  'start' => array(
+    'dateTime' => $sdt,
+    'timeZone' => 'Asia/Manila',
+  ),
+  'end' => array(
+    'dateTime' => $edt,
+    'timeZone' => 'Asia/Manila',
+  ),
+  'recurrence' => array(
+    'RRULE:FREQ=DAILY;COUNT=1'
+  ),
+  'attendees' => array(
+    array('email' => 'rafael.rodriguez.lozano@gmail.com'),
+      array('email' => 'regina_balajadia@dlsu.edu.ph'),
+      array('email' => 'rappogi1@gmail.com'),
+      array('email' => 'john_martin_lucas@dlsu.edu.ph'),
+  ),
+  'reminders' => array(
+    'useDefault' => FALSE,
+    'overrides' => array(
+      array('method' => 'email', 'minutes' => 24 * 60),
+      array('method' => 'popup', 'minutes' => 10),
+    ),
+  ),
+));
+
+$calendarId = 'primary';
+    
+$event = $service->events->insert($calendarId, $event);
+printf('Event created: %s\n', $event->htmlLink);
+}
 
 
 
 
 
 
+function ifErrorAuth(){
+        $homeDirectory = getenv('HOME');
+  if (empty($homeDirectory)) {
+    $homeDirectory = getenv("HOMEDRIVE") . getenv("HOMEPATH");
+  }
+    $client = new Google_Client();
+  $client->setApplicationName(APPLICATION_NAME);
+  $client->addScope("https://www.googleapis.com/auth/calendar");
+  $client->setAuthConfigFile(CLIENT_SECRET_PATH);
+  $client->setAccessType('offline');
 
+  // Load previously authorized credentials from a file.
+  $credentialsPath = str_replace('~', realpath($homeDirectory), CREDENTIALS_PATH);
 
+    // Request authorization from the user.
+    $authUrl = $client->createAuthUrl();
+    printf("Open the following link in your browser:\n%s\n", $authUrl);
+    print 'Enter verification code: ';
+    $authCode = AUTH_CODE;
+
+    // Exchange authorization code for an access token.
+    $accessToken = $client->authenticate($authCode);
+
+    // Store the credentials to disk.
+    if(!file_exists(dirname($credentialsPath))) {
+      mkdir(dirname($credentialsPath), 0700, true);
+    }
+    file_put_contents($credentialsPath, $accessToken);
+    printf("Credentials saved to %s\n", $credentialsPath);
+
+  $client->setAccessToken($accessToken);
+
+  // Refresh the token if it's expired.
+  if ($client->isAccessTokenExpired()) {
+    $client->refreshToken($client->getRefreshToken());
+    file_put_contents($credentialsPath, $client->getAccessToken());
+  }
+}
 
 
 
@@ -172,7 +289,7 @@ function getFreeBusy($em,$sdt,$edt){
     $authUrl = $client->createAuthUrl();
     printf("Open the following link in your browser:\n%s\n", $authUrl);
     print 'Enter verification code: ';
-    $authCode = '4/euXj9y4o0gYoA8MO2tkGv9tKbmkF8kLxCFc4omeJHVY';
+    $authCode = AUTH_CODE;
 
     // Exchange authorization code for an access token.
     $accessToken = $client->authenticate($authCode);

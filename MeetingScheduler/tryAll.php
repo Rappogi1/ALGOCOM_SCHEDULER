@@ -31,7 +31,7 @@ require_once('meeting.php');
         $count = 0;
         $yes = 1;
         
-        if($ilanIB!=null){
+
             
         if($emailmain=='rappogi1@gmail.com'){
         $emailmain='ita91lgk4o9651eaaphjk025kg@group.calendar.google.com';
@@ -109,7 +109,7 @@ require_once('meeting.php');
                 $count++;
             //}
         }
-        }
+        
         return $yes;
     }
 
