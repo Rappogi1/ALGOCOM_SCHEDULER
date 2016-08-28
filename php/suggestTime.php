@@ -2,7 +2,7 @@
     session_start();
   // $users = unserialize($_SESSION["users"]);
   // Require our Event class and datetime utilities
-
+    $gFB; // Initiate this first
   require dirname(__FILE__) . '/userModel.php';
   require dirname(__FILE__) . '/timeslot.php';
   require dirname(__FILE__) . '/../MeetingScheduler/tryAll.php';
@@ -98,6 +98,8 @@
   function score($timeStart, $timeEnd, $users){
     //echo "iteration: Start: ".$timeStart."End: ".$timeEnd."<br>";
     //"2016-08-23T09:30:00+08:00"
+      global $gFB;
+        setIBData($gFB);
     $timeStartGoogle = toGoogleFormat($timeStart);
     $timeEndGoogle = toGoogleFormat($timeEnd);
 
@@ -191,9 +193,10 @@
     }
     return $timeSlots;
   }
+    global $gFB;
 
   initiateBusy($userEmails, toGoogleFormat($startDateTime), toGoogleFormat($endDateTime));
-
+  $gFB = getIBData();
   $timeSlots = array();
   $timeSlots = anneal($startDateTime,$endDateTime,  $duration, $users);
 

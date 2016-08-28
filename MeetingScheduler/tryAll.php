@@ -5,6 +5,22 @@ require_once('meeting.php');
     $busyIB;
     $ilanIB;
 
+    function getIBData(){
+        global $gFB;
+        return $gFB;
+    }
+
+    function setIBData($gFB1){
+        global $gFB;
+        global $emailIB;
+        global $busyIB;
+        global $ilanIB;
+        $gFB = $gFB1;
+        $emailIB = $gFB[0];
+        $busyIB = $gFB[1];
+        $ilanIB = $gFB[2];
+    }
+
     function checkIfBusy($emailmain, $sdt, $edt){
         global $emailIB;
         global $busyIB;
@@ -19,10 +35,6 @@ require_once('meeting.php');
         $emailmain='dlsu.edu.ph_9u089b01752o0afi2e5ign0rlg@group.calendar.google.com';
     }else if($emailmain=='john_martin_lucas@dlsu.edu.ph'){
         $emailmain='dlsu.edu.ph_h0ghs54ph8kbuc2tiohu1gbg7k@group.calendar.google.com';
-    }
-
-    foreach ($ilanIB as $value) {
-      echo "ilabib:".$value."<br>";
     }
         foreach($emailIB as $em){
             //if($em==$emailmain){
@@ -101,7 +113,7 @@ require_once('meeting.php');
         $busy = [];
 
         $emailmain2=$emailmain;
-
+        
         $count=0;
         while($count<count($emailmain)){
             if($emailmain[$count]=='rappogi1@gmail.com'){
@@ -124,7 +136,7 @@ require_once('meeting.php');
         //         $e ='dlsu.edu.ph_h0ghs54ph8kbuc2tiohu1gbg7k@group.calendar.google.com';
         //     }
         // }
-
+        global $gFB;
 
         $gFB = getInitBusy($emailmain,$sdt,$edt);
         global $emailIB;
