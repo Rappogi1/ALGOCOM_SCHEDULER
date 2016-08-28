@@ -98,7 +98,7 @@ foreach($calendarList->getItems() as $calendarListEntry){
 
 
 $arr = $createdReq->getCalendars();
-
+//var_dump($arr);
 $count = 0;
 $cnt = 0;
 $busy = [];
@@ -107,10 +107,14 @@ $end = [];
 $ilan = [];
 
 $count = 0;
+    //echo 'IN<br>';
 foreach ($arr as $calendarListEntry){
+    //echo 'INSIDE<br>';
     $arr_arr =$calendarListEntry->getBusy();
+    //var_dump($arr_arr);
     $cnt = 0;
     foreach ($arr_arr as $calendarListEntry){
+        //echo 'LIST<br>';
         $start[$cnt] = $calendarListEntry->getStart();
         $end[$cnt] = $calendarListEntry->getEnd();
         $cnt++;
@@ -119,7 +123,7 @@ foreach ($arr as $calendarListEntry){
         //echo $count." ".$cnt." ";
         $busy[$count] = array($start,$end);
         $ilan[$count] = $cnt;
-        //echo $ilan[$count];
+        //echo $ilan[$count].'Yes<br>';
         //echo '<br>';
         $count++;
     }

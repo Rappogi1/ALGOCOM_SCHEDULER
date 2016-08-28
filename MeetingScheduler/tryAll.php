@@ -25,10 +25,14 @@ require_once('meeting.php');
         global $emailIB;
         global $busyIB;
         global $ilanIB;
+        //var_dump($ilanIB);
         $boolD = 0;
         $boolT = 0;
         $count = 0;
         $yes = 1;
+        
+        if($ilanIB!=null){
+            
         if($emailmain=='rappogi1@gmail.com'){
         $emailmain='ita91lgk4o9651eaaphjk025kg@group.calendar.google.com';
     }else if($emailmain=='regina_balajadia@dlsu.edu.ph'){
@@ -104,6 +108,7 @@ require_once('meeting.php');
                 }
                 $count++;
             //}
+        }
         }
         return $yes;
     }
