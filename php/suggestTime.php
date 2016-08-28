@@ -1,6 +1,24 @@
 <?php
-  
+    session_start();
+  // $users = unserialize($_SESSION["users"]);
+  // Require our Event class and datetime utilities
+  require dirname(__FILE__) . '/userModel.php';
+  require dirname(__FILE__) . '/timeslot.php';
+  require dirname(__FILE__) . '/../MeetingScheduler/tryAll.php';
 
+  // Read and parse our events JSON file into an array of event data arrays.
+  $json = file_get_contents(dirname(__FILE__) . '/../json/user.json');
+  $input_arrays = json_decode($json, true);
+  $users = array();
+  $userEmails = array();
+
+    foreach ($input_arrays as $key1 => $value1) {
+      $user = new User($input_arrays[$key1]["Name"],$input_arrays[$key1]["Email"], true, false);
+      // echo $user->name."<br>";
+      // echo $user->email."<br>";
+      array_push($userEmails, $input_arrays[$key1]["Email"]);
+      array_push($users, $user);
+    }
 
   $eventName = $_POST["eventName"];
   $location = $_POST["location"];
@@ -9,8 +27,6 @@
   $startTime = $_POST["startTime"];
   $endTime = $_POST["endTime"];
   $duration = $_POST["eventDuration"];
-  
-
 
   echo $eventName.'<br/>';
   echo $location.'<br/>';
@@ -18,7 +34,7 @@
   echo $endDate.'<br/>';
   echo "Time".$startTime.'<br/>';
   echo $endTime.'<br/>';
-  echo $duration.'<br/>';
+  echo "Duration: ".$duration.'<br/>';
 
   $dayStart = str_replace('-', '/', $startDate);
   $dayEnd = str_replace('-', '/', $endDate);
@@ -28,7 +44,7 @@
   $endDateTime = date('Y-m-d H:i:s', strtotime($endDateTime) - $duration * 60);
 
   /*Acceptance Function*/
-  function accept($newSolution, $oldSolution, $temperature){
+  function acceptance_probability($newSolution, $oldSolution, $temperature){
       if($newSolution > $oldSolution){
         return 1.0;
       }
@@ -40,64 +56,61 @@
   }
   /*Random Date and Time*/
   function getRandomTime($startDateTime, $endDateTime){
-    // $dayStart = str_replace('-', '/', $dayStart);
-    // $dayEnd = str_replace('-', '/', $dayEnd);
-    // $stampDayStart = strtotime($dayStart);
-    // $stampDayEnd = strtotime($dayEnd);
-    // $stampTimeStart = strtotime($timeStart);
-    // $stampTimeEnd = strtotime($timeEnd);
-    // $stampDuration = strtotime($duration);
-    //
-    // $startDateTime = date('Y-m-d H:i:s', strtotime("$dayStart $timeStart"));
-    // $endDateTime = date('Y-m-d H:i:s', strtotime("$dayEnd $timeEnd"));
-    // $endDateTime = date('Y-m-d H:i:s', strtotime($endDateTime) - $duration * 60);
-
-    // echo "dateTime:".$startDateTime."<br>";
-    // echo "dateTime:".$endDateTime."<br>";
-
     //Get a random day date from day scope
     $dayRand = mt_rand(strtotime($startDateTime), strtotime($endDateTime));
-
-    // $timeStartStamp = strtotime($timeStart, $dayRand);
-    // $timeEndStamp = strtotime($timeEnd, $dayRand);
-
     $timeSlot = date('Y-m-d H:i:s', $dayRand);
-
     //echo "Timeslot".$timeSlot."<br>";
     $roundedTimeSlot = roundTime($timeSlot);
-
     //echo "roundedTimeSlot".$roundedTimeSlot."<br>";
     return $roundedTimeSlot;
-}
+  }
+  function toGoogleFormat($time){
+    $gmt = "+08:00";
+    $dat = date('Y-m-d', strtotime($time));
+    $tme = date('H:i:s',strtotime($time));
 
-  require dirname(__FILE__) . '/../MeetingScheduler/tryAll.php';
+    $timeGoogle = $dat."T".$tme.$gmt;
+
+    return $timeGoogle;
+  }
 
   /*this is rap's function*/
-  function score($timeStart, $timeEnd){
+  function score($timeStart, $timeEnd, $users){
+    //echo "iteration: Start: ".$timeStart."End: ".$timeEnd."<br>";
     //"2016-08-23T09:30:00+08:00"
-      session_start();
+    $timeStartGoogle = toGoogleFormat($timeStart);
+    $timeEndGoogle = toGoogleFormat($timeEnd);
 
-    $gmt = "+08:00";
-    $dat = date('Y-m-d', strtotime($timeStart));
-    $tme = date('H:i:s',strtotime($timeStart));
-
-    $datEnd = date('Y-m-d', strtotime($timeEnd));
-    $tmeEnd = date('H:i:s',strtotime($timeEnd));
-
-    $timeStartGoogle = $dat."T".$tme.$gmt;
-    $timeEndGoogle = $datEnd."T".$tmeEnd.$gmt;
-
-    $users = $_SESSION['users'];
-      
     $score=0;
+    $available = array();
+    $notavailable = array();
+
     foreach($users as $user){
-      $isBusy = getIfBusy($users, $timeStartGoogle, $timeEndGoogle);
+      //echo $user->email."<br>";
+      $isBusy = checkIfBusy($user->email, $timeStartGoogle, $timeEndGoogle);
       if($isBusy == 1){
         $score = $score + 3;
+        array_push($available, $user);
+      }
+      else{
+        array_push($notavailable, $user);
       }
     }
-    echo "Score:".$score;
+    // echo "available"."<br>";
+    // foreach($available as $avail){
+    //   echo $avail->name."<br>";
+    // }
+    //
+    // echo "not Available"."<br>";
+    // foreach($notavailable as $notAvail){
+    //   echo $notAvail->name."<br>";
+    // }
+    $timeResults = new Timeslot($timeStart, $timeEnd, $score, $available, $notavailable);
+
+    return $timeResults;
+    // echo "Score:".$score."<br>";
   }
+
   function getNeighboringSolution($oldSolution){
       $doWhat = mt_rand(1,4);
       switch($doWhat){
@@ -120,145 +133,63 @@
       }
       return $newSolution;
   }
+  /*Annealing*/
+  function anneal($startDateTime, $endDateTime, $duration, $users){
+    $timeSlots = array();
+    $temperature = 1.2;
+    $temp_min = 1;
+    $coolRate = 0.9;
 
-   $oldSolution = getRandomTime($startDateTime, $endDateTime);
-   $endTimeOld = date('Y-m-d H:i:s', strtotime($oldSolution) + $duration * 60);
-   score($oldSolution, $endTimeOld);
-   echo "Old Solution:".$oldSolution."<br>";
-   echo "Neighbor Solution:".getNeighboringSolution($oldSolution)."<br>";
+    /*initializes a random solution*/
+    $randomStartTime = getRandomTime($startDateTime, $endDateTime);
+    /*this add the duration in seconds to the start time in $oldSolution*/
+    $randomEndTime = date('Y-m-d H:i:s', strtotime($randomStartTime) + $duration * 60);
+    /*this is the score of the timeslot, along with the available participants*/
+    $randomTimeslot= score($randomStartTime, $randomEndTime, $users);
 
-  // /*Annealing*/
-  // function anneal(){
-  //   $temperature = 1000;
-  //   $temp_min = 1;
-  //   $coolRate = 0.9;
-  //
-  //   $oldSolution = getRandomTime($startDate, $endDate, $startTime, $endTime, $duration);
-  //   $endTimeOld = date('Y-m-d H:i:s', strtotime($oldSolution) + $duration * 60);
-  //   $oldSolutionScore = score($oldSolution, $endTimeOld);
-  //
-  //  while ($temperature > $temp_min) {
-  //      i = 1
-  //      while (i <= 10) {
-  //          $newSolution = getNeighboring($startDate, $endDate, $startTime, $endTime, $duration);
-  //          $newSolutionScore = score($newSolution);
-  //          $ap = acceptance_probability($newSolutionScore, $oldSolutionScore, $temperature);
-  //          if ($ap > random()){
-  //              $oldSolution = $newSolution;
-  //              $oldSolutionScore = $newSolutionScore;
-  //          }
-  //          $i += 1;
-  //      $temperature = $temperature * $coolRate;
-  //    }
-  //    return $oldSolution;
-  // }
+     while ($temperature > $temp_min) {
+         $i = 1;
+         while ($i <= 2) {
+             $newRandomStartTime = getNeighboringSolution($startDateTime, $endDateTime);
+             $newRandomEndTime = date('Y-m-d H:i:s', strtotime($newRandomStartTime) + $duration * 60);
+             $newRandomTimeslot = score($newRandomStartTime, $newRandomEndTime, $users);
+             $ap = acceptance_probability($newRandomTimeslot->score, $randomTimeslot->score, $temperature);
+             if ($ap > rand()){
+                 $randomTimeslot = $newRandomTimeslot;
+             }
+             $i += 1;
+         $temperature = $temperature * $coolRate;
+       }
+       array_push($timeSlots, $randomTimeslot);
+    }
+    return $timeSlots;
+  }
+
+  initiateBusy($userEmails, toGoogleFormat($startDateTime), toGoogleFormat($endDateTime));
+
+  $timeSlots = array();
+  $timeSlots = anneal($startDateTime,$endDateTime,  $duration, $users);
+
+  if (is_array($timeSlots) || is_object($timeSlots))
+  {
+    foreach($timeSlots as $time){
+      echo "timestart: ".$time->datetimeStart."<br>";
+      echo "timeend: ".$time->datetimeEnd."<br>";
+      echo "score: ".$time->score."<br>";
+      echo "Available: <br>";
+
+      foreach($time->available as $avail){
+            echo $avail->name."<br>";
+      }
+      echo "Not Available: <br>";
+      foreach($time->notAvailable as $notAvail){
+        echo $notAvail->name."<br>";
+      }
+    }
+  }
+  else{
+    echo "timeslots is not an array <br>";
+  }
+  // $_SESSION['timeslotResult'] = serialize($timeslotResult);
+
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Organization Event</title>
-
-    <style>
-    	body, th, td{
-    		/*margin: 40px 10px;
-    		padding: 0; */
-    		font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
-    		font-size: 16px;
-    	}
-      #loading {
-        display: none;
-        position: absolute;
-        top: 10px;
-        right: 10px;
-      }
-    	#calendar {
-    		/*max-width: 900px;*/
-    		margin: 0 auto;
-    	}
-
-      .glyphicon:before {
-       visibility: visible;
-      }
-      .glyphicon.glyphicon-star-empty:checked:before {
-         content: "\e006";
-      }
-      input[type=checkbox].glyphicon{
-          visibility: hidden;
-
-      }
-      div > .best{
-        background-color: green;
-        color: #fff;
-      }
-      .card-header{
-        text-align: center;
-      }
-      .card-body{
-        padding-left: 10px;
-      }
-      .participants{
-        font-size: 16px;
-      }
-    </style>
-
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
-  </head>
-  <body>
-    <nav class="navbar navbar-default">
-    <div class="container-fluid">
-      <!-- Brand and toggle get grouped for better mobile display -->
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="#">Organization</a>
-      </div>
-
-<div class="container">
-  <div class="row">
-      <div class="col-sm-4 col-lg-4 col-md-4">
-          <div class="thumbnail">
-            <div class="card-header best">
-              <h3>Timeslot</h3>
-            </div>
-              <div class="card-body">
-                  <h4><strong>Date:</strong> August 17, 2016</h4>
-                  <h4><strong>Time:</strong> 15:30 - 18:30</h4>
-                  <h4><strong>Available:</strong></h4>
-                  <ul>
-                    <li class="participants">Regina Claire Balajadia</li>
-                    <li class="participants">John Martin Lucas</li>
-                  </ul>
-                  <h4><strong>Not Available: </strong></h4>
-                  <ul>
-                    <li class="participants">Rafael Lozano</li>
-                  </ul>
-              </div>
-              <div class="bookEvent">
-                  <a href="#" class="btn btn-primary btn-md btn-block">
-                     Book Event
-                  </a>
-              </div>
-          </div>
-      </div>
-  </div>
-</div>
-</body>
-</html>

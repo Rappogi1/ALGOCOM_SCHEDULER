@@ -18,7 +18,7 @@ $users = array();
     array_push($users, $user);
   }
 
-$_SESSION['users'] = $users;
+  $_SESSION["users"] = serialize($users);
   // Send JSON to the client.
   //echo json_encode($users);
 ?>
@@ -184,6 +184,37 @@ $_SESSION['users'] = $users;
     </div>
   </div>
 </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-sm-4 col-lg-4 col-md-4">
+          <div class="thumbnail">
+            <div class="card-header best">
+              <h3>Timeslot</h3>
+            </div>
+              <div class="card-body">
+                  <h4><strong>Date:</strong> August 17, 2016</h4>
+                  <h4><strong>Time:</strong> 15:30 - 18:30</h4>
+                  <h4><strong>Available:</strong></h4>
+                  <ul>
+                    <li class="participants">Regina Claire Balajadia</li>
+                    <li class="participants">John Martin Lucas</li>
+                  </ul>
+                  <h4><strong>Not Available: </strong></h4>
+                  <ul>
+                    <li class="participants">Rafael Lozano</li>
+                  </ul>
+              </div>
+              <div class="bookEvent">
+                  <a href="#" class="btn btn-primary btn-md btn-block">
+                     Book Event
+                  </a>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src='js/jquery-3.1.0.min.js'></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->

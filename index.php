@@ -61,12 +61,12 @@
     </div><!-- /.container-fluid -->
   </nav>
 
-<div class="container">
-  <div class="row">
-    <div id='loading' class="col-md-12">loading...</div>
-    <div id='calendar' class="col-md-12"></div>
+  <div class="container">
+    <div class="row">
+      <div id='loading' class="col-md-12">loading...</div>
+      <div id='calendar' class="col-md-12"></div>
+    </div>
   </div>
-</div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src='js/jquery-3.1.0.min.js'></script>
