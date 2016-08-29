@@ -61,12 +61,12 @@
     </div><!-- /.container-fluid -->
   </nav>
 
-<div class="container">
-  <div class="row">
-    <div id='loading' class="col-md-12">loading...</div>
-    <div id='calendar' class="col-md-12"></div>
+  <div class="container">
+    <div class="row">
+      <div id='loading' class="col-md-12">loading...</div>
+      <div id='calendar' class="col-md-12"></div>
+    </div>
   </div>
-</div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src='js/jquery-3.1.0.min.js'></script>
@@ -76,6 +76,7 @@
     <script src='fullcalendar-2.9.1/lib/moment.min.js'></script>
     <script src='fullcalendar-2.9.1/lib/jquery.min.js'></script>
     <script src='fullcalendar-2.9.1/fullcalendar.min.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.9.0/gcal.js"></script>
     <script>
     $(document).ready(function() {
 
@@ -88,12 +89,17 @@
         defaultDate: '2016-06-12',
         editable: false,
         eventLimit: true, // allow "more" link when too many events
+        // events: {
+        //   url: 'php/get-events.php',
+        //   error: function() {
+        //     $('#script-warning').show();
+        //   }
+        // },
+        googleCalendarApiKey: '812061625827-al2k01gpd7644m71717bctp2nmm2gks1.apps.googleusercontent.com',
         events: {
-          url: 'php/get-events.php',
-          error: function() {
-            $('#script-warning').show();
-          }
-        },
+                googleCalendarId: 'dlsu.edu.ph_mmbkl04i5qll6sm3t59p8sb64k@group.calendar.google.com',
+                className: 'ALGOCOM Calendar'
+            },
         loading: function(bool) {
           $('#loading').toggle(bool);
         },
@@ -105,7 +111,9 @@
             // alert('View: ' + view.name);
             // change the border color just for fun
             $(this).css('border-color', 'red');
-        }
+        },
+
+
       });
     });
     </script>

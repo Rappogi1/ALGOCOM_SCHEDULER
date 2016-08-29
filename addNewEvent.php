@@ -1,3 +1,28 @@
+
+<?php
+// Require our Event class and datetime utilities
+require dirname(__FILE__) . '/php/userModel.php';
+session_start();
+
+
+// Read and parse our events JSON file into an array of event data arrays.
+$json = file_get_contents(dirname(__FILE__) . '/json/user.json');
+$input_arrays = json_decode($json, true);
+$users = array();
+
+  foreach ($input_arrays as $key1 => $value1) {
+    $user = new User($input_arrays[$key1]["Name"],$input_arrays[$key1]["Email"], true, false);
+    // echo $user->name."<br>";
+    // echo $user->email."<br>";
+
+    array_push($users, $user);
+  }
+
+  $_SESSION["users"] = serialize($users);
+  // Send JSON to the client.
+  //echo json_encode($users);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -7,13 +32,21 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>Organization Event</title>
 
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
     <style>
     	body, th, td{
     		/*margin: 40px 10px;
     		padding: 0; */
     		font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
     		font-size: 16px;
+
     	}
+      th, td{
+            text-align: center;
+      }
       #loading {
         display: none;
         position: absolute;
@@ -50,10 +83,6 @@
       }
     </style>
 
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -88,76 +117,73 @@
   <div class="row">
     <div class="well">
       <h4>Add new event</h4>
-      <form action="php/suggestTime.php"  method="post">
+      <form id="eventForm" action="php/suggestTime.php"  method="post">
         <div class="form-group row">
-          <label for="inputEmail3" class="col-sm-1 col-form-label">Name:</label>
+          <label class="col-sm-1 col-form-label">Name:</label>
           <div class="col-sm-5">
             <input type="text" class="form-control" id="inputEmail3" maxlength="100" name="eventName" placeholder="name" required>
           </div>
-          <label for="inputPassword3" class="col-sm-1 col-form-label">Location: </label>
+          <label class="col-sm-1 col-form-label">Location: </label>
           <div class="col-sm-5">
             <input type="text" class="form-control" id="inputPassword3" maxlength="100" placeholder="location" name="location" required>
           </div>
         </div>
         <div class="form-group row">
-          <label for="inputEmail3" class="col-sm-1 col-form-label">Event Duration (mins):</label>
+          <label class="col-sm-1 col-form-label">Event Duration (mins):</label>
           <div class="col-sm-5">
-            <input type="number" class="form-control" id="inputEmail3" min="15" step="15" value="15" name="eventDuration" required>
+            <input type="number" class="form-control" id="duration" min="15" step="15" value="15" name="eventDuration" onchange="validateTime()" required>
           </div>
         </div>
         <div class="form-group row">
-          <label for="inputEmail3" class="col-sm-2 col-form-label">Event Start Date:</label>
-          <div class="col-sm-4">
-            <input type="date" class="form-control" name="startDate" required>
+          <label class="col-sm-2 col-form-label">Event Start Date:</label>
+          <div class="col-sm-4 dateContainer">
+            <div class="input-group input-append date" id="startDatePicker">
+                <input id="startDate" type="date" class="form-control" name="startDate" onchange="validateDate()" required/>
+                <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
           </div>
-          <label for="inputEmail3" class="col-sm-2 col-form-label">Event End Date:</label>
-          <div class="col-sm-4">
-            <input type="date" class="form-control" name="endDate" required>
+          <label class="col-sm-2 col-form-label">Event End Date:</label>
+          <div class="col-sm-4 dateContainer">
+            <div class="input-group input-append date" id="endDatePicker">
+                <input id="endDate" type="date" class="form-control" name="endDate" onchange="validateDate()" required/>
+                <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
           </div>
         </div>
         <div class="form-group row">
-          <label for="inputEmail3" class="col-sm-2 col-form-label">Event Start Time:</label>
+          <label class="col-sm-2 col-form-label">Event Start Time:</label>
           <div class="col-sm-4">
-            <input type="time" class="form-control" name="startDate" required>
+            <input id="startTime" type="time" class="form-control" name="startTime" onchange="validateTime()" required>
           </div>
-          <label for="inputEmail3" class="col-sm-2 col-form-label">Event End Time:</label>
+          <label class="col-sm-2 col-form-label">Event End Time:</label>
           <div class="col-sm-4">
-            <input type="time" class="form-control" name="endDate" required>
+            <input id="endTime" type="time" class="form-control" name="endTime" onchange="validateTime()" required>
           </div>
         </div>
+
         <fieldset class="form-group row">
           <legend class="col-form-legend col-sm-12">People</legend>
-          <table class="col-form-legend col-sm-offset-1 col-sm-11">
+          <table class="table col-form-legend">
             <thead>
-              <th>Invite</th>
-              <th>Priority?</th>
-              <th>Name</th>
+              <th class="col-md-2">Invite</th>
+              <th class="col-md-2">Priority?</th>
+              <th class="col-md-4">Name</th>
+              <th class="col-md-4">Email</th>
             </thead>
             <tbody>
-              <tr>
-                <td><input class="form-check-input glyphicon glyphicon-star-empty" type="checkbox"></td>
-                <td>
-                  <input type="hidden" value="0" name="reginaPriority">
-                  <input class="form-check-input" type="checkbox" value="1" name="reginaPriority"></td>
-                <td>Regina Claire Balajadia</td>
+
+              <?php foreach($users as $user){ ?>
+              <tr class="active">
+                <td><input type="checkbox" name="invited[]" value="<?php echo $user->email?>" onclick="toggleRow('<?php echo $user->email?>')" ></td>
+                <td><input id="row_<?php echo $user->email?>" type="checkbox" name="priority[]>" value="<?php echo $user->email?>"></td>
+                <td><?php echo $user->name?></td>
+                <td><?php echo $user->email?></td>
               </tr>
-              <tr>
-                <td><input class="form-check-input glyphicon glyphicon-star-empty" type="checkbox"></td>
-                <td>
-                  <input type="hidden" value="0" name="rafaelPriority">
-                  <input class="form-check-input" type="checkbox" value="1" name="rafaelPriority"></td>
-                <td>Rafael Lozano</td>
-              </tr>
-              <tr>
-                <td><input class="form-check-input glyphicon glyphicon-star-empty" type="checkbox"></td>
-                <td>
-                  <input type="hidden" value="0" name="martinPriority">
-                  <input class="form-check-input" type="checkbox" value="1" name="martinPriority"></td>
-                <td>John Martin Lucas</td>
-              </tr>
+              <?php }?>
             </tbody>
           </table>
         </fieldset>
+
         <div class="form-group row">
           <div class="offset-sm-2 col-sm-10">
             <button type="submit" class="btn btn-primary">Suggest Event Time</button>
@@ -167,41 +193,51 @@
     </div>
   </div>
 </div>
-
-
-<div class="container">
-  <div class="row">
-      <div class="col-sm-4 col-lg-4 col-md-4">
-          <div class="thumbnail">
-            <div class="card-header best">
-              <h3>Timeslot</h3>
-            </div>
-              <div class="card-body">
-                  <h4><strong>Date:</strong> August 17, 2016</h4>
-                  <h4><strong>Time:</strong> 15:30 - 18:30</h4>
-                  <h4><strong>Available:</strong></h4>
-                  <ul>
-                    <li class="participants">Regina Claire Balajadia</li>
-                    <li class="participants">John Martin Lucas</li>
-                  </ul>
-                  <h4><strong>Not Available: </strong></h4>
-                  <ul>
-                    <li class="participants">Rafael Lozano</li>
-                  </ul>
-              </div>
-              <div class="bookEvent">
-                  <a href="#" class="btn btn-primary btn-md btn-block">
-                     Book Event
-                  </a>
-              </div>
-          </div>
-      </div>
-  </div>
-</div>
-
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src='js/jquery-3.1.0.min.js'></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="js/bootstrap.min.js"></script>
+    <script src='fullcalendar-2.9.1/lib/moment.min.js'></script>
+    <script>
+    function toggleRow(rowName) {
+      var checkbox = "invite_"+rowName;
+      var row = "row_"+rowName;
+      //
+      // console.log(rowName);
+      // console.log(checkbox);
+      // console.log(row);
+
+      var toggle = document.getElementById(row);
+      updateToggle = checkbox.checked ? toggle.disabled=true : toggle.disabled=false;
+    }
+    var m = moment().format("YYYY-MM-DD");
+
+    document.getElementById("startDate").min = m;
+    document.getElementById("endDate").min = m;
+
+    function validateDate() {
+      // console.log("changed!");
+      // var startDate = new Date($('#startDate').val());
+      var minDate = document.getElementById("startDate").value;
+      // console.log(minDate);
+      document.getElementById("endDate").min = minDate;
+    }
+    function addMinutes(time/*"hh:mm"*/, minsToAdd/*"N"*/) {
+      function z(n){
+        return (n<10? '0':'') + n;
+      }
+      var bits = time.split(':');
+      var mins = bits[0]*60 + (+bits[1]) + (+minsToAdd);
+
+      return z(mins%(24*60)/60 | 0) + ':' + z(mins%60);
+    }
+    function validateTime(){
+        var time = document.getElementById("startTime").value;
+        var duration = document.getElementById("duration").value;
+        var endTime = addMinutes(time,duration);
+        document.getElementById("endTime").min = endTime;
+        // console.log(endTime);
+    }
+    </script>
   </body>
 </html>

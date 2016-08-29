@@ -1,104 +1,42 @@
-
 <?php
+    require("tryAll.php");
+    $gFB; // Initiate this first
 
-    function getIfBusy(){
-    if(isset($_POST['submit'])){
-            
-            $data_missing = array();
-            
-            if(empty($_POST['email'])){
-                $data_missing[] = "Email";
-            } else{
-                $emailmain = trim($_POST['email']);
-            }
-            
-            if(empty($_POST['startdate'])){
-                $data_missing[] = "Start Date";
-            } else{
-                $startdate = trim($_POST['startdate']);
-            }
-        
-            if(empty($_POST['starttime'])){
-                $data_missing[] = "Start Time";
-            } else{
-                $starttime = trim($_POST['starttime']);
-            }
-        
-            if(empty($_POST['enddate'])){
-                $data_missing[] = "End Date";
-            } else{
-                $enddate = trim($_POST['enddate']);
-            }
-        
-            if(empty($_POST['endtime'])){
-                $data_missing[] = "End Time";
-            } else{
-                $endtime = trim($_POST['endtime']);
-            }
-            
-        $sdt = $startdate."T".$starttime.":00+08:00";
-        $edt = $enddate."T".$endtime.":00+08:00";
-            $yes;
-        
-    if(empty($data_missing)){
-    require('meeting.php');
-    $pos = [];
-    $cnt;
-    $email = [];
-    $start = [];
-    $end = [];
-
-        $emailmain2='rappogi1@gmail.com';
-    if($emailmain=='rappogi1@gmail.com'){
-        $emailmain='ita91lgk4o9651eaaphjk025kg@group.calendar.google.com';
-    }
-        
-    $gFB = getFreeBusy($emailmain,$sdt,$edt);
-
-    $pos = $gFB[0];
-    $cnt = $gFB[1];
-    $email = $gFB[2];
-    $start = $gFB[3];
-    $end = $gFB[4];
-
-
-    echo 'The Emails of ('.$emailmain2.'):'.'<br>';
-    foreach($email as $em){
-        echo $em.'<br>';
-    }
-    echo $em.'<br><br>';
-
-    echo "Is The Email (".$emailmain2.") Busy? (If there are date and time it's busy)"."<br>";
-    
-    echo $email[0].'<br>';    
-        
-    $count = 0;
-        if($cnt!=0){
-            $yes="Yes";
-    while($count<count($start)){
-        //echo $email[$p].'<br>';
-        echo $start[$count].'<br>';
-        echo $end[$count].'<br>';
-        $count++;
-        
-    }
-    }else{
-            $yes="No";
-        }
-    }else {
-                
-                echo 'You need to enter the following data<br />';
-                
-                foreach($data_missing as $missing){
-                    
-                    echo "$missing<br />";
-                    
-                }
-                
-            }
-    }
-        return $yes;
+    function init($email, $sdt, $edt){
+        global $gFB;
+        // $email = array('rafael.rodriguez.lozano@gmail.com','rappogi1@gmail.com','regina_balajadia@dlsu.edu.ph','john_martin_lucas@dlsu.edu.ph');
+        // initiateBusy($email,'2016-08-20T09:25:00+08:00','2016-08-30T12:45:00+08:00');
+        initiateBusy($email,$sdt,$edt);
+        $gFB = getIBData();
     }
 
-    echo '<br> Is the email Busy? The answer is(Yes/No): '.getIfBusy();
+    function run($email, $sdt, $edt){
+        global $gFB;
+        setIBData($gFB);
+
+        // echo 'Is the email Busy? The answer is(Yes/No): '.checkIfBusy('rappogi1@gmail.com', '2016-08-25T05:30:00+08:00','2016-08-25T12:45:00+08:00').'<br>';
+        return checkIfBusy($email, $sdt,$edt);
+    }
+
+    function add(){
+        $email = array(
+            array('email' => 'rafael.rodriguez.lozano@gmail.com'),
+            //array('email' => 'regina_balajadia@dlsu.edu.ph'),
+            array('email' => 'rappogi1@gmail.com'),
+            //array('email' => 'john_martin_lucas@dlsu.edu.ph'),
+        );
+
+        $title = "Try and Try";
+        $location = "Gokongwei";
+        $description = "Sa likod";
+        $sdt = "2016-08-30T09:25:00+08:00";
+        $edt = "2016-08-30T09:45:00+08:00";
+
+        //Here's the format
+        addToGoogle($email, $title, $location, $description, $sdt, $edt);
+    }
+    //
+    // init();
+    // run();
+    // add();
 ?>
