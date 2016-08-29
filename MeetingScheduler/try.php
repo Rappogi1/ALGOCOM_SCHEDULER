@@ -20,16 +20,16 @@
     function add(){
         $email = array(
             array('email' => 'rafael.rodriguez.lozano@gmail.com'),
-            //array('email' => 'regina_balajadia@dlsu.edu.ph'),
+            array('email' => 'regina_balajadia@dlsu.edu.ph'),
             array('email' => 'rappogi1@gmail.com'),
-            //array('email' => 'john_martin_lucas@dlsu.edu.ph'),
+            array('email' => 'john_martin_lucas@dlsu.edu.ph'),
         );
         
         $title = "Try and Try";
         $location = "Gokongwei";
         $description = "Sa likod";
-        $sdt = "2016-08-30T09:25:00+08:00";
-        $edt = "2016-08-30T09:45:00+08:00";
+        $sdt = "2016-09-15T09:25:00+08:00";
+        $edt = "2016-09-15T09:45:00+08:00";
         
         //Here's the format
         addToGoogle($email, $title, $location, $description, $sdt, $edt);

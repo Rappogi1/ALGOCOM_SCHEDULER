@@ -199,12 +199,7 @@ function addToGoogle($users, $summary, $location, $description, $sdt, $edt){
   'recurrence' => array(
     'RRULE:FREQ=DAILY;COUNT=1'
   ),
-  'attendees' => array(
-    array('email' => 'rafael.rodriguez.lozano@gmail.com'),
-      array('email' => 'regina_balajadia@dlsu.edu.ph'),
-      array('email' => 'rappogi1@gmail.com'),
-      array('email' => 'john_martin_lucas@dlsu.edu.ph'),
-  ),
+  'attendees' => $users,
   'reminders' => array(
     'useDefault' => FALSE,
     'overrides' => array(
