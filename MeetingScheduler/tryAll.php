@@ -31,7 +31,7 @@ require_once('meeting.php');
         $count = 0;
         $yes = 1;
         
-
+        if($ilanIB!=null){
             
         if($emailmain=='rappogi1@gmail.com'){
         $emailmain='ita91lgk4o9651eaaphjk025kg@group.calendar.google.com';
@@ -43,8 +43,14 @@ require_once('meeting.php');
         foreach($emailIB as $em){
             //if($em==$emailmain){
                 //echo $em.'<br>';
+                
+                //echo $ilanIB[$count];
                 $cnt=0;
-                while($cnt<$ilanIB[$count]){
+                $pos = 0;
+                foreach($ilanIB as $iIB){
+                    
+                    if($pos==$count){
+                while($cnt<$iIB){
                     //$sdt
                         $datetimesdt = preg_split("/T/", $sdt);
                         $datetime1sdt = explode("+", $datetimesdt[1]);
@@ -106,10 +112,13 @@ require_once('meeting.php');
                     }
                     $cnt++;
                 }
+                    }
+                    $pos++;
+                }
                 $count++;
             //}
         }
-        
+    }
         return $yes;
     }
 

@@ -130,6 +130,7 @@ foreach ($arr as $calendarListEntry){
         $count++;
     }else{
         $ilan[$count] = 0;
+        //echo $ilan[$count].'Yes<br>';
     }
 }
 //echo $ilan[1];
