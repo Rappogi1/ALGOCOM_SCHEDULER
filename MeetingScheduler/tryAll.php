@@ -30,9 +30,9 @@ require_once('meeting.php');
         $boolT = 0;
         $count = 0;
         $yes = 1;
-        
 
-            
+        if($ilanIB!=null){
+
         if($emailmain=='rappogi1@gmail.com'){
         $emailmain='ita91lgk4o9651eaaphjk025kg@group.calendar.google.com';
     }else if($emailmain=='regina_balajadia@dlsu.edu.ph'){
@@ -109,7 +109,8 @@ require_once('meeting.php');
                 $count++;
             //}
         }
-        
+      }
+
         return $yes;
     }
 
@@ -118,7 +119,7 @@ require_once('meeting.php');
         $busy = [];
 
         $emailmain2=$emailmain;
-        
+
         $count=0;
         while($count<count($emailmain)){
             if($emailmain[$count]=='rappogi1@gmail.com'){

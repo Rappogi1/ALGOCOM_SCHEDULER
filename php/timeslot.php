@@ -26,5 +26,9 @@ class Timeslot{
     //   echo $avail->name;
     // }
   }
+	public function __toString()
+	{
+		return $this->datetimeStart . $this->datetimeEnd;
+	}
 }
 ?>

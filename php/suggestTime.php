@@ -6,6 +6,7 @@
   require dirname(__FILE__) . '/userModel.php';
   require dirname(__FILE__) . '/timeslot.php';
   require dirname(__FILE__) . '/../MeetingScheduler/tryAll.php';
+  // require dirname(__FILE__) . '/../MeetingScheduler/addToGoogle.php';
 
   // // Read and parse our events JSON file into an array of event data arrays.
   // $json = file_get_contents(dirname(__FILE__) . '/../json/user.json');
@@ -219,16 +220,21 @@
   // else{
   //   echo "timeslots is not an array <br>";
   // }
-
+  $known = array();
+  $filtered = array_filter($timeSlots, function ($val) use (&$known) {
+      $unique = !in_array($val->datetimeStart, $known);
+      $known[] = $val->datetimeStart;
+      return $unique;
+  });
+  /*All unique timeslots*/
+  $timeSlots = $filtered;
   function date_sort($a, $b)
   {
       if ( $a->datetimeStart < $b->datetimeStart) return -1;
       if ( $a->datetimeStart > $b->datetimeStart ) return 1;
       return 0;
   }
-
   uasort($timeSlots, 'date_sort');
-  // var_dump($timeSlots);
 ?>
 
 <!DOCTYPE html>
@@ -292,7 +298,13 @@
 <div class="container">
   <div class="row">
       <?php foreach($timeSlots as $time){ ?>
-      <form role="form" action="/../MeetingScheduler/addToGoogle.php"  method="post">
+      <form role="form" action="../MeetingScheduler/addToGoogle.php"  method="post">
+
+        <input type="hidden" name="sdt" value="<?php echo toGoogleFormat($time->datetimeStart); ?>">
+        <input type="hidden" name="edt" value="<?php echo toGoogleFormat($time->datetimeEnd); ?>">
+        <input type="hidden" name="location" value="<?php echo $location;?>">
+        <input type="hidden" name="title" value="<?php echo $eventName;?>">
+
         <div class="col-sm-4 col-lg-4 col-md-4">
           <div class="thumbnail panel panel-default">
             <div class="panel-header">
@@ -300,27 +312,28 @@
               ?></strong>
             </div>
               <div class="panel-body">
-                <h4><strong>Participants: <?php echo count($time->available)+count($time->notAvailable);?> </strong></h4>
+                <h4><strong>Event Title: </strong> <?php echo $eventName;?></h4>
+                <h4><strong>Location: </strong> <?php echo $location;?></h4>
+                <h4><strong>Participants:  </strong> <?php echo count($time->available)+count($time->notAvailable);?></h4>
                 <hr/>
-                  <h4><strong>Available: <?php echo count($time->available);?> </strong></h4>
+                  <h4><strong>Available:  </strong> <?php echo count($time->available);?></h4>
                   <ul>
                     <?php foreach($time->available as $avail){ ?>
                       <li class="participants <?php if($avail->isPriority == 1){ echo "text-info";}?>"><?php echo $avail->name ?>
                       </li>
+                      <input type="hidden" name="email[]" value="<?php echo $avail->name;?>"/>
                     <?php } ?>
                   </ul>
-                  <h4><strong>Not Available: <?php echo count($time->notAvailable);?>  </strong></h4>
+                  <h4><strong>Not Available:  </strong> <?php echo count($time->notAvailable);?> </h4>
                   <ul>
                     <?php foreach($time->notAvailable as $notAvail){ ?>
-                      <li class="participants <?php if($avail->isPriority == 1){ echo "text-info";}?> "><?php echo $notAvail->name ?>
+                      <li class="participants <?php if($notAvail->isPriority == 1){ echo "text-info";}?> "><?php echo $notAvail->name ?>
                       </li>
                     <?php } ?>
                   </ul>
               </div>
               <div class="bookEvent">
-                  <a href="#" class="btn btn-primary btn-md btn-block">
-                     Book Event
-                  </a>
+                <input type="submit" class="btn btn-block btn-info" value="Submit Button">
               </div>
           </div>
         </div>
